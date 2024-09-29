@@ -53,6 +53,7 @@ re_chapter_code = r'(\d+\.\d+\.\d+)|(\d+\.\d+)|(\d+\.)'
 
 pdf_input_name = 'mypdf.pdf'
 css_input_name = 'markdownhere.css'
+pdf_output_name = None
 
 # the bmk_level should start from 1, if not, filter it.
 has_main_title = 0
@@ -63,10 +64,11 @@ def usage():
     print ('Usage:')
     print ('-f, --pdf []: specify the input .pdf file name, mypdf.pdf as default')
     print ('-c, --css [] : specify the input .css file name, markdownhere.css as default')
+    print ('-o, --out []: specify the output .pdf file name, default append _new to input name')
 
 if __name__ == '__main__':
     try:
-        options,args = getopt.getopt(sys.argv[1:], "hf:c:", ["help","pdf=","css="])
+        options,args = getopt.getopt(sys.argv[1:], "hf:c:o:", ["help","pdf=","css=","out="])
     except getopt.GetoptError as err:
         usage()
         sys.exit(0)
@@ -79,6 +81,8 @@ if __name__ == '__main__':
             pdf_input_name = value
         if name in ("-c","--css"):
             css_input_name = value
+        if name in ("-o","--out"):
+            pdf_output_name = value
 
     with open(css_input_name, 'rb') as fd:
         css = fd.read()
@@ -135,6 +139,10 @@ if __name__ == '__main__':
                                 toc.append([bmk_level, context['text'], page_num, {'kind':pymupdf.LINK_GOTO, 'to':point, 'collapse':1}])
 
     doc.set_toc(toc)
-    pdf_input_name_new = pdf_input_name.rsplit(".", 1)[0] + '_new' + '.pdf'
-    doc.save(pdf_input_name_new)
+    if pdf_output_name is None:
+        pdf_output_name = pdf_input_name.rsplit(".", 1)[0] + '_new' + '.pdf'
+    if pdf_output_name == pdf_input_name:
+        doc.saveIncr()
+    else:
+        doc.save(pdf_output_name)
     doc.close()
