@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import codecs
-import os
 import re
 import sys
 import getopt
@@ -71,12 +69,12 @@ if __name__ == '__main__':
         options,args = getopt.getopt(sys.argv[1:], "hf:c:o:", ["help","pdf=","css=","out="])
     except getopt.GetoptError as err:
         usage()
-        sys.exit(0)
+        sys.exit(1)
 
     for name,value in options:
         if name in ("-h","--help"):
             usage()
-            sys.exit(0)
+            sys.exit(1)
         if name in ("-f","--pdf"):
             pdf_input_name = value
         if name in ("-c","--css"):
@@ -106,7 +104,7 @@ if __name__ == '__main__':
     toc = doc.get_toc(simple=False)
     if toc:
         print('the file has toc.')
-        os._exit(1)
+        sys.exit(1)
 
     # for pages in doc:
     for page_num, page in enumerate(doc, 1):
@@ -146,3 +144,4 @@ if __name__ == '__main__':
     else:
         doc.save(pdf_output_name)
     doc.close()
+    sys.exit(0)
